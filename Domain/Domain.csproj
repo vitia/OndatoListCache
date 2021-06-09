@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <AssemblyName>Ondato.Domain</AssemblyName>
+    <RootNamespace>Ondato.Domain</RootNamespace>
+  </PropertyGroup>
+
+</Project>
