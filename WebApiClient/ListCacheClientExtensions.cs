@@ -17,14 +17,14 @@ namespace Ondato.WebApiClient
 
         public static async Task CreateListAsync(this ListCacheClient client, string key, List<object> list, TimeSpan slidingExpiration, CancellationToken ct)
         {
-            var values = ToValues(list);
-            await client.CreateAsync(new() { Key = key, Values = values, SlidingExpiration = slidingExpiration }, ct);
+            var entry = new ListCacheEntry { Key = key, Values = ToValues(list), SlidingExpiration = ToValue(slidingExpiration) };
+            await client.CreateAsync(entry, ct);
         }
 
         public static async Task UpdateListAsync(this ListCacheClient client, string key, List<object> list, TimeSpan slidingExpiration, CancellationToken ct)
         {
-            var values = ToValues(list);
-            await client.UpdateAsync(key, new() { Key = key, Values = values, SlidingExpiration = slidingExpiration }, ct);
+            var entry = new ListCacheEntry { Key = key, Values = ToValues(list), SlidingExpiration = ToValue(slidingExpiration) };
+            await client.UpdateAsync(key, entry, ct);
         }
 
         public static async Task DeleteListAsync(this ListCacheClient client, string key, CancellationToken ct)
@@ -33,12 +33,12 @@ namespace Ondato.WebApiClient
         }
 
         private static List<byte[]> ToValues(IEnumerable<object> list)
-        {
-            return list.Select(o => ObjSerializer.Serialize(o)).ToList();
-        }
+            => list.Select(o => ObjSerializer.Serialize(o)).ToList();
+
         private static List<object> ToObjectList(IEnumerable<byte[]> list)
-        {
-            return list.Select(o => ObjSerializer.Deserialize(o)).ToList();
-        }
+            => list.Select(o => ObjSerializer.Deserialize(o)).ToList();
+
+        private static double ToValue(TimeSpan timeSpan)
+            => timeSpan.TotalMilliseconds;
     }
 }

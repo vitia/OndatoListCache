@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Net.Mime;
 using System.Threading;
 using System.Threading.Tasks;
@@ -52,7 +51,6 @@ namespace Ondato.WebApi.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Create(ListCacheEntry entry, CancellationToken ct)
         {
-            Debugger.Launch();
             if (entry?.Key is null)
             {
                 return BadRequest("Key is required.");
@@ -62,7 +60,7 @@ namespace Ondato.WebApi.Controllers
                 return BadRequest("Values are required.");
             }
 
-            var createdEntry = await new SetListCacheEntryCommand(_cache, _configuration).InvokeAsync(entry.Key, entry.Values, entry.SlidingExpiration, ct);
+            var createdEntry = await new SetListCacheEntryCommand(_cache, _configuration).InvokeAsync(entry.Key, entry.Values, entry.GetSlidingExpiration(), ct);
             return CreatedAtAction(nameof(GetByKey), new { key = entry.Key }, null);
         }
 
@@ -72,7 +70,6 @@ namespace Ondato.WebApi.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Update(string key, ListCacheEntry entry, CancellationToken ct)
         {
-            Debugger.Launch();
             if (key != entry?.Key)
             {
                 return BadRequest("Key missmatch.");
@@ -85,12 +82,12 @@ namespace Ondato.WebApi.Controllers
             var values = await new GetListCacheEntryCommand(_cache).InvokeAsync(key, ct);
             if (values is null)
             {
-                var createdEntry = await new SetListCacheEntryCommand(_cache, _configuration).InvokeAsync(key, entry.Values, entry.SlidingExpiration, ct);
+                var createdEntry = await new SetListCacheEntryCommand(_cache, _configuration).InvokeAsync(key, entry.Values, entry.GetSlidingExpiration(), ct);
                 return CreatedAtAction(nameof(GetByKey), new { key }, null);
             }
 
             values.AddRange(entry.Values);
-            await new SetListCacheEntryCommand(_cache, _configuration).InvokeAsync(key, values, entry.SlidingExpiration, ct);
+            await new SetListCacheEntryCommand(_cache, _configuration).InvokeAsync(key, values, entry.GetSlidingExpiration(), ct);
             return Ok();
         }
 
@@ -98,7 +95,6 @@ namespace Ondato.WebApi.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         public async Task<IActionResult> Delete(string key, CancellationToken ct)
         {
-            Debugger.Launch();
             await new RemoveListCacheEntryCommand(_cache).InvokeAsync(key, ct);
             return NoContent();
         }

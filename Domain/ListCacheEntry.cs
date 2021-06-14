@@ -11,7 +11,7 @@ namespace Ondato.Domain
         {
             this.Key = key;
             this.Values = values;
-            this.SlidingExpiration = slidingExpiration;
+            this.SlidingExpiration = slidingExpiration.TotalMilliseconds;
         }
 
         [Required]
@@ -20,6 +20,8 @@ namespace Ondato.Domain
         [Required]
         public List<byte[]>? Values { get; set; }
 
-        public TimeSpan SlidingExpiration { get; set; }
+        public double SlidingExpiration { get; set; }
+
+        public TimeSpan GetSlidingExpiration() => TimeSpan.FromMilliseconds(this.SlidingExpiration);
     }
 }

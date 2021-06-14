@@ -12,7 +12,7 @@ namespace Ondato.WebApiClientTests
     public class ListCacheClientTest
     {
         // https://localhost:44395/swagger/v1/swagger.json
-        private const string ServiceUrl = "https://localhost:44395/ListCache/";
+        private const string ServiceUrl = "https://localhost:44395";
         private const string ServiceApiKey = "test123";
 
         [Test]
@@ -42,30 +42,25 @@ namespace Ondato.WebApiClientTests
             var longExpiration = TimeSpan.FromSeconds(500);
             var shortExpiration = TimeSpan.FromMilliseconds(500);
 
-            await client.CreateListAsync(key, values1, longExpiration, ct);
+            void AssertMissing() => Assert.ThrowsAsync<ApiException<ProblemDetails>>(async () => await client.GetListByKeyAsync(key, ct));
+            async void AssertValues(List<object> expected) => CollectionAssert.AreEqual(expected, await client.GetListByKeyAsync(key, ct));
 
-            var resCreated = await client.GetListByKeyAsync(key, ct);
-            CollectionAssert.AreEqual(resCreated, values1);
+            AssertMissing();
+
+            await client.CreateListAsync(key, values1, longExpiration, ct);
+            AssertValues(values1);
 
             await client.UpdateListAsync(key, values2, longExpiration, ct);
-
-            var resAppended = await client.GetListByKeyAsync(key, ct);
-            CollectionAssert.AreEqual(new List<object> { 101, "str1", 201, "str2" }, resAppended);
+            AssertValues(new List<object> { 101, "str1", 201, "str2" });
 
             await client.DeleteListAsync(key, ct);
-
-            var resDeleted = await client.GetListByKeyAsync(key, ct);
-            Assert.IsNull(resDeleted);
+            AssertMissing();
 
             await client.UpdateListAsync(key, values2, shortExpiration, ct);
-
-            var resUpdated = await client.GetListByKeyAsync(key, ct);
-            Assert.IsNull(resUpdated);
+            AssertValues(values2);
 
             await Task.Delay(shortExpiration);
-
-            var resExpired = await client.GetListByKeyAsync(key, ct);
-            Assert.IsNull(resExpired);
+            AssertMissing();
         }
 
         [Test]

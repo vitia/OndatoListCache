@@ -178,8 +178,8 @@
             }
           },
           "slidingExpiration": {
-            "type": "string",
-            "format": "time-span"
+            "type": "number",
+            "format": "double"
           }
         },
         "additionalProperties": false

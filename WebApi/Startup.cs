@@ -55,7 +55,7 @@ namespace Ondato.WebApi
                 });
                 c.OperationFilter<SwaggerOperationFilter>();
                 // https://github.com/RicoSuter/NSwag/issues/2952
-                c.MapType<TimeSpan>(() => new OpenApiSchema { Type = "string", Format = "time-span" });
+                //c.MapType<TimeSpan>(() => new OpenApiSchema { Type = "string", Format = "time-span" });
             });
         }
 
@@ -75,6 +75,7 @@ namespace Ondato.WebApi
 
             app.UseAuthorization();
 
+            app.UseMiddleware<RequestResponseLoggingMiddleware>();
             app.UseMiddleware<ApiKeyMiddleware>();
 
             app.UseEndpoints(endpoints =>
